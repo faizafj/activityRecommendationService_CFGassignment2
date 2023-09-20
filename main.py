@@ -2,6 +2,7 @@
 import requests
 import time
 import os
+import random
 
 # codes for changing terminal text color.
 colorStart = "\033["
@@ -42,20 +43,44 @@ def formatPreviousResults(previousActivities):
         print(colorStart + "33m--------------------------------------------------------------  " + colorEnd)
 
 
+def chooseRandomActivity():
+    url = "http://www.boredapi.com/api/activity/"
+    response = requests.get(url)
+    print(colorStart + "36m--------------------------------------------------------------  " + colorEnd)
+    formatResults(response)
+    previousActivities.append(response.json())
+    time.sleep(2)
+    startAgain = input("Would you like to see another random activity? y/n ")
+
+    if startAgain.lower() == "y" or startAgain.lower() == "yes":
+        clear()
+        chooseRandomActivity()
+    else:
+        clear()
+        menuOptions()
+
+
 def viewPreviousActivities(previousActivities):
     if len(previousActivities) == 0:
         clear()
         print("You have no previous searches")
         print("Start searching to view previous results")
-        time.sleep(2)
-        menuOptions()
+        time.sleep(5)
+
     else:
         clear()
         print("Here are your previous activity results: ")
         print(colorStart + "33m--------------------------------------------------------------  " + colorEnd)
         formatPreviousResults(previousActivities)
         time.sleep(5)
-        menuOptions()
+        startAgain = input("Would you like to keep looking y/n ")
+
+        while startAgain.lower() == "y" or startAgain.lower() == "yes":
+            time.sleep(5)
+            startAgain = input("Would you like to keep looking y/n ")
+        else:
+            clear()
+            menuOptions()
 
 
 def searchByCategory():
@@ -105,9 +130,11 @@ def menuOptions():
     print("5: View previous activity results")
     print("6: Exit")
 
-    userOption = input("Select an option 1-5: ")
+    userOption = input("Select an option 1-6: ")
 
-    if userOption == "2":
+    if userOption == "1":
+        chooseRandomActivity()
+    elif userOption == "2":
         searchByCategory()
     elif userOption == "5":
         viewPreviousActivities(previousActivities)
@@ -115,8 +142,6 @@ def menuOptions():
         print("Goodbye")
         time.sleep(2)
         exit()
-
-        # menuOptions()
 
 
 menuOptions()
