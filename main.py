@@ -23,9 +23,46 @@ previousActivities = []
 def colorCodes():
     colors = {
         'colorStart': "\033[",
-        'colorEnd': "\033[0m"
+        'colorEnd': "\033[0m",
+        'boldStart': "\033[1m",
+        'boldEnd': "\033[0m"
     }
     return colors
+
+
+def writeFinalResults(previousActivities):
+    userName = input("What is your name? ")
+    file = open('allActivities.txt', 'w')
+    file.write(f"Results for: {userName}\n")
+    file.write("\n")
+    count = 0
+    for previousActivity in previousActivities:
+        count += 1
+        file.write(f"Activity {count}: {previousActivity['activity']}\n")
+        file.write(f"Category: {previousActivity['type']}\n")
+        file.write(f"Number of participants required: {previousActivity['participants']}\n")
+        file.write(f"Difficulty Score: {(previousActivity['accessibility'] * 10)}/10\n")
+        if previousActivity['price'] == 0.0:
+            file.write("Cost of activity: FREE \n")
+        else:
+            file.write(f"Cost of activity: {(previousActivity['price'] * 10)}/10\n")
+        file.write("\n")
+    file.close()
+
+
+def formatPreviousResults(previousActivities):
+    colors = colorCodes()
+    for currentActivity in previousActivities:
+        print(f"Activity: {currentActivity['activity']}")
+        print(f"Category: {currentActivity['type']}")
+        print(f"Number of participants required: {currentActivity['participants']}")
+        print(f"Difficulty Score: {(currentActivity['accessibility'] * 10)}/10")
+        if currentActivity['price'] == 0.0:
+            print("Cost of activity: FREE ")
+        else:
+            print(f"Cost of activity: {(currentActivity['price'] * 10)}/10\n")
+        print(colors['colorStart'] + "33m--------------------------------------------------------------  " + colors[
+            'colorEnd'])
 
 
 def urlLink():
@@ -48,27 +85,13 @@ def formatResults(response):
     print(f"Activity: {responseFormatted['activity']}")
     print(f"Category: {responseFormatted['type']}")
     print(f"Number of participants required: {responseFormatted['participants']}")
+    print(f"Difficulty Score: {(responseFormatted['accessibility'] * 10)}/10")
     if responseFormatted['price'] == 0.0:
         print("Cost of activity: FREE ")
     else:
-        print(f"Cost of activity: £{float(responseFormatted['price'])}")
+        print(f"Cost of activity: {(responseFormatted['price'] * 10)}/10")
     print(colors['colorStart'] + "36m--------------------------------------------------------------  " + colors[
         'colorEnd'])
-
-
-# used to format all previous results, uses a different formatting style compared to normal results
-def formatPreviousResults(previousActivities):
-    colors = colorCodes()
-    for currentActivity in previousActivities:
-        print(f"Activity: {currentActivity['activity']}")
-        print(f"Category: {currentActivity['type']}")
-        print(f"Number of participants required: {currentActivity['participants']}")
-        if currentActivity['price'] == 0.0:
-            print("Cost of activity: FREE ")
-        else:
-            print(f"Cost of activity: £{float(currentActivity['price'])}")
-        print(colors['colorStart'] + "33m--------------------------------------------------------------  " + colors[
-            'colorEnd'])
 
 
 # Displays all menu options, allows user to quit the program too.
@@ -81,9 +104,10 @@ def menuOptions():
     print("3: Search by number of participants")
     print("4: Search by difficulty of the activity")
     print("5: View previous activity results")
-    print("6: Exit")
+    print("6: View previous activity results file")
+    print("7: Exit")
 
-    userOption = input("Select an option 1-6: ")
+    userOption = input("Select an option 1-7: ")
 
     if userOption == "1":
         chooseRandomActivity()
@@ -94,7 +118,11 @@ def menuOptions():
     elif userOption == "4":
         searchByDifficulty()
     elif userOption == "5":
-        viewPreviousActivities(previousActivities)
+        fileOrNotFile = False
+        viewPreviousActivities(previousActivities, fileOrNotFile)
+    elif userOption == "6":
+        fileOrNotFile = True
+        viewPreviousActivities(previousActivities, fileOrNotFile)
     else:
         print("Thank you using our service, goodbye.")
         time.sleep(2)
@@ -122,35 +150,53 @@ def chooseRandomActivity():
         menuOptions()
 
 
-# Used to determine if there are any previous activities to display.
-def viewPreviousActivities(previousActivities):
+# Used to determine if there are any previous activities to display. Uses an if statement to determine whether to call
+# the file creation function or the function used to print results in terminal
+def viewPreviousActivities(previousActivities, fileOrNotFile):
     colors = colorCodes()
     if len(previousActivities) == 0:
         clear()
         print("You have no previous searches")
         print("Start searching to view previous results")
         time.sleep(5)
+        clear()
+        menuOptions()
 
     else:
-        clear()
-        print("Here are your previous activity results: ")
-        print(colors['colorStart'] + "33m--------------------------------------------------------------  " + colors[
-            'colorEnd'])
+        if not fileOrNotFile:
+            clear()
+            print("Here are your previous activity results: ")
+            print(colors['colorStart'] + "33m--------------------------------------------------------------  " + colors[
+                'colorEnd'])
 
-        formatPreviousResults(previousActivities)
-        time.sleep(5)
-        startAgain = input(
-            "Would you like to keep looking y/n ")  # extends time delay so user can keep checking the results
-
-        while startAgain.lower() == "y" or startAgain.lower() == "yes":
+            formatPreviousResults(previousActivities)
             time.sleep(5)
-            startAgain = input("Would you like to keep looking y/n ")
+            startAgain = input(
+                "Would you like to keep looking y/n ")  # extends time delay so user can keep checking the results
+
+            while startAgain.lower() == "y" or startAgain.lower() == "yes":
+                time.sleep(5)
+                startAgain = input("Would you like to keep looking y/n ")
+            else:
+                clear()
+                menuOptions()
         else:
+            clear()
+            writeFinalResults(previousActivities)
+            print(colors['colorStart'] + "33m--------------------------------------------------------------  " +
+                  colors[
+                      'colorEnd'])
+            print("Your results have been saved: ")
+            print(colors['colorStart'] + "33m--------------------------------------------------------------  " +
+                  colors[
+                      'colorEnd'])
+            time.sleep(5)
             clear()
             menuOptions()
 
 
 def searchByCategory():
+    clear()
     colors = colorCodes()
     url = urlLink()
     categoriesOfActivities = ["education", "recreational", "social", "diy", "charity", "cooking", "relaxation", "music",
@@ -271,8 +317,10 @@ def searchByNumberOfParticipants():
             menuOptions()
 
 
-# menuOptions()
-searchByDifficulty()
-
+menuOptions()
+# searchByDifficulty()
+# writeFinalResults()
 # searchByNumberOfParticipants()
+# chooseRandomActivity()
+
 # chooseRandomActivity()
