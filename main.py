@@ -211,7 +211,7 @@ def viewPreviousActivities(previousActivities, fileOrNotFile):
                 'colorEnd'])
 
             resultsList = []
-            for i in range(len(previousActivities)):
+            for i in range(len(previousActivities)):  # filters out data to remove duplicate results.
                 if previousActivities[i] not in resultsList:
                     resultsList.append(previousActivities[i])
 
@@ -229,7 +229,7 @@ def viewPreviousActivities(previousActivities, fileOrNotFile):
         else:
             clear()
             resultsList = []
-            for i in range(len(previousActivities)):
+            for i in range(len(previousActivities)):  # extends time delay so user can keep checking the results
                 if previousActivities[i] not in resultsList:
                     resultsList.append(previousActivities[i])
             writeFinalResults(resultsList)
@@ -267,7 +267,7 @@ def searchByCategory():
         if userCategory.lower() in categoriesOfActivities:
             for i in range(numberOfResults):
                 response = requests.get(f"{url}type={userCategory}")
-                if response.json() not in resultsList:
+                if response.json() not in resultsList:  # filters data to remove duplicates
                     resultsList.append(response.json())
                     formatResults(response)
                     previousActivities.append(response.json())
@@ -311,7 +311,7 @@ def searchByDifficulty():
         numberOfResultsShown = 0
         for i in range(numberOfResults):
             response = requests.get(f"{url}accessibility={userDifficulty}")
-            if response.json() not in resultsList:
+            if response.json() not in resultsList:  # filters data to remove duplicates
                 resultsList.append(response.json())
                 formatResults(response)
                 previousActivities.append(response.json())
@@ -340,7 +340,7 @@ def searchByNumberOfParticipants():
     print(colors['colorStart'] + "36m--------------------------------------------------------------  " + colors[
         'colorEnd'])
 
-    if numberOfParticipants == 7 or numberOfParticipants == 6:
+    if numberOfParticipants == 7 or numberOfParticipants == 6:  # Error message
         print(f"Sorry we do not have any activities available for {numberOfParticipants} people")
         print("Try again")
         searchByNumberOfParticipants()
@@ -358,7 +358,7 @@ def searchByNumberOfParticipants():
 
             for i in range(numberOfResults):
                 response = requests.get(f"{url}participants={str(numberOfParticipants)}")
-                if response.json() not in resultsList:
+                if response.json() not in resultsList:  # filters data to remove duplicates
                     resultsList.append(response.json())
                     formatResults(response)
                     previousActivities.append(response.json())
