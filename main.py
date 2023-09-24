@@ -162,10 +162,17 @@ def menuOptions():
     elif userOption == "6":
         fileOrNotFile = True
         viewPreviousActivities(previousActivities, fileOrNotFile)
-    else:
+    elif userOption == "7":
         print("Thank you using our service, goodbye.")
         time.sleep(2)
         exit()
+    else:
+        clear()
+        print("You have entered an incorrect value")
+        print("Loading menu...")
+        time.sleep(2)
+        clear()
+        menuOptions()
 
 
 # Runs the base API call to provide a random activity.
